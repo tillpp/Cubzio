@@ -32,7 +32,7 @@ const FPSPresets = [_]u16{5, 10, 15, 30, 50, 60, 75, 90, 100, 120, 144, 165, 170
 fn fpsCapRound(newValue: f32) ?u32 {
 	
 	for (FPSPresets) |value| {
-		if(@as(u16,@intFromFloat(newValue))<value)
+		if(@as(u16,@intFromFloat(newValue))<=value)
 			return value;
 	}
 	return null;
