@@ -916,7 +916,7 @@ pub const proximityChat = struct { // MARK: chat
 		var writer = utils.BinaryWriter.init(main.stackAllocator);
 		defer writer.deinit();
 		
-		writer.writeVec(Vec3f, @as(Vec3f,@floatFromInt(srcUser.lastPos)));
+		writer.writeVec(Vec3f, @as(Vec3f,@floatFromInt(srcUser.clientUpdatePos)));
 		writer.writeSlice(msg);
 		
 		const userList = main.server.getUserListAndIncreaseRefCount(main.globalAllocator);

@@ -46,7 +46,7 @@ fn play(
 	}
 }
 pub fn pushPlaybackData(distanceSquared:f32,msg:[]const f32)void{
-	var volume = 1.0/distanceSquared;	
+	var volume = 4.0/distanceSquared;	
 	if(volume>1)
 		volume = 1;
 	for(0..msg.len)|index|{
