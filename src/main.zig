@@ -34,6 +34,7 @@ pub const ZonElement = @import("zon.zig").ZonElement;
 pub const Window = @import("graphics/Window.zig");
 
 pub const heap = @import("utils/heap.zig");
+pub const ProximityChat = @import("ProximityChat.zig");
 
 pub const List = @import("utils/list.zig").List;
 pub const ListUnmanaged = @import("utils/list.zig").ListUnmanaged;
@@ -371,6 +372,8 @@ pub const KeyBoard = struct { // MARK: KeyBoard
 		.{.name = "takeBackgroundImage", .key = c.GLFW_KEY_PRINT_SCREEN, .pressAction = &takeBackgroundImageFn},
 		.{.name = "fullscreen", .key = c.GLFW_KEY_F11, .pressAction = &Window.toggleFullscreen},
 
+		.{.name = "proximityChat", .key = c.GLFW_KEY_V, .pressAction = &ProximityChat.activateRecording, .releaseAction = &ProximityChat.deactivateRecording},
+
 		// Gui:
 		.{.name = "escape", .key = c.GLFW_KEY_ESCAPE, .pressAction = &escape, .gamepadButton = c.GLFW_GAMEPAD_BUTTON_B},
 		.{.name = "openCreativeInventory(aka cheat inventory)", .key = c.GLFW_KEY_C, .pressAction = &openCreativeInventory, .gamepadButton = c.GLFW_GAMEPAD_BUTTON_Y},
@@ -568,6 +571,9 @@ pub fn main() void { // MARK: main()
 
 	server.terrain.globalInit();
 	defer server.terrain.globalDeinit();
+
+	ProximityChat.init();
+	defer ProximityChat.deinit();
 
 	if(headless) {
 		server.start(settings.launchConfig.autoEnterWorld, null);

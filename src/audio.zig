@@ -9,7 +9,7 @@ const c = @cImport({
 	@cInclude("stb/stb_vorbis.h");
 });
 
-fn handleError(miniaudioError: c.ma_result) !void {
+pub fn handleError(miniaudioError: c.ma_result) !void {
 	if(miniaudioError != c.MA_SUCCESS) {
 		std.log.err("miniaudio error: {s}", .{c.ma_result_description(miniaudioError)});
 		return error.miniaudioError;

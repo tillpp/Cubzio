@@ -889,3 +889,49 @@ pub const blockEntityUpdate = struct { // MARK: blockEntityUpdate
 		sendServerDataUpdateToClientsInternal(pos, &ch.super, block, blockEntity);
 	}
 };
+
+pub const proximityChat = struct { // MARK: chat
+	pub const id: u8 = 15;
+	pub const asynchronous = false;
+	fn clientReceive(_: *Connection, reader: *utils.BinaryReader) !void {
+		std.debug.print("received {d}\n", .{reader.remaining.len});
+		var pos = reader.readVec(Vec3f) catch @panic("");
+		const msg = reader.remaining;
+		if(msg.len%@sizeOf(f32)!=0){
+			return;
+		}
+		const f32_msg = @as([]const f32,@ptrCast(@alignCast(msg)));
+		const playerPos = main.game.Player.getPosBlocking();
+		pos[0] -= @as(f32,@floatCast(playerPos[0]));
+		pos[1] -= @as(f32,@floatCast(playerPos[1]));
+		pos[2] -= @as(f32,@floatCast(playerPos[2]));
+
+		const distanceSquared:f32 = vec.lengthSquare(pos);
+		main.ProximityChat.pushPlaybackData(distanceSquared,f32_msg);
+	}
+	fn serverReceive(conn: *Connection, reader: *utils.BinaryReader) !void {
+		const msg = reader.remaining;
+		const srcUser = conn.user.?;
+
+		var writer = utils.BinaryWriter.init(main.stackAllocator);
+		defer writer.deinit();
+		
+		writer.writeVec(Vec3f, @as(Vec3f,@floatFromInt(srcUser.lastPos)));
+		writer.writeSlice(msg);
+		
+		const userList = main.server.getUserListAndIncreaseRefCount(main.globalAllocator);
+		defer main.server.freeUserListAndDecreaseRefCount(main.stackAllocator, userList);
+		
+		for(userList)|destUser|{
+			if(destUser != srcUser){
+				std.debug.print("send {d}\n", .{writer.data.items.len});
+				destUser.conn.send(.lossy, id, writer.data.items);
+			}
+
+		}
+	}
+
+	pub fn send(conn: *Connection, msg: []const u8) void {
+		conn.send(.lossy, id, msg);
+	}
+};
