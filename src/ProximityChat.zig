@@ -46,7 +46,7 @@ fn play(
 	}
 }
 pub fn pushPlaybackData(distanceSquared:f32,msg:[]const f32)void{
-	var volume = 4.0/distanceSquared;	
+	var volume = 4.0/std.math.sqrt(distanceSquared);	
 	if(volume>1)
 		volume = 1;
 	for(0..msg.len)|index|{
@@ -95,15 +95,17 @@ pub fn deinit()void{
 }
 var isRecording:bool = false;
 pub fn activateRecording(_: main.Window.Key.Modifiers) void {
-	isRecording = true;
-	std.debug.print("recording..\n", .{});
+	isRecording =! isRecording;
+	if(isRecording){
+		std.debug.print("recording..\n", .{});
 
-	const result = c.ma_device_start(&recordDevice);
-	errdefer c.ma_device_uninit(&recordDevice);
-	handleError(result) catch return;
+		const result = c.ma_device_start(&recordDevice);
+		errdefer c.ma_device_uninit(&recordDevice);
+		handleError(result) catch return;
+	}else{
+		_ = c.ma_device_stop(&recordDevice);
+		std.debug.print("stopped recording..\n", .{});
+	}
 }
 pub fn deactivateRecording(_: main.Window.Key.Modifiers) void {
-	isRecording = false;
-	_ = c.ma_device_stop(&recordDevice);
-	std.debug.print("stopped recording..\n", .{});
 }
