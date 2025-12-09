@@ -145,17 +145,18 @@ pub fn updateViewport(width: u31, height: u31) void {
 
 pub fn render(playerPosition: Vec3d, deltaTime: f64) void {
 	// TODO: player bobbing
-	// TODO: Handle colors and sun position in the world.
-	std.debug.assert(game.world != null);
-	var ambient: Vec3f = undefined;
-	ambient[0] = @max(0.1, game.world.?.ambientLight);
-	ambient[1] = @max(0.1, game.world.?.ambientLight);
-	ambient[2] = @max(0.1, game.world.?.ambientLight);
+	if(game.world) |world| {
+		// TODO: Handle colors and sun position in the world.
+		var ambient: Vec3f = undefined;
 
-	itemdrop.ItemDisplayManager.update(deltaTime);
-	renderWorld(game.world.?, ambient, game.fog.skyColor, playerPosition);
-	const startTime = main.timestamp();
-	mesh_storage.updateMeshes(startTime.addDuration(maximumMeshTime));
+		ambient[0] = @max(0.1, world.ambientLight);
+		ambient[1] = @max(0.1, world.ambientLight);
+		ambient[2] = @max(@as(f32, @floatFromInt(settings.ambientMinimumMoonLight))/255.0, world.ambientLight);
+		itemdrop.ItemDisplayManager.update(deltaTime);
+		renderWorld(game.world.?, ambient, game.fog.skyColor, playerPosition);
+		const startTime = main.timestamp();
+		mesh_storage.updateMeshes(startTime.addDuration(maximumMeshTime));
+	}
 }
 
 pub fn crosshairDirection(rotationMatrix: Mat4f, fovY: f32, width: u31, height: u31) Vec3f {
