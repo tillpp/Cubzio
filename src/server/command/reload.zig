@@ -18,11 +18,9 @@ pub fn execute(args: []const u8, source: *User) void {
 	var errorMessage: main.List(u8) = .empty;
 	defer errorMessage.deinit(main.stackAllocator);
 
-	const result = ArgParser.parse(main.stackAllocator, args, &errorMessage) catch {
-		source.sendMessage("#ff0000{s}", .{errorMessage.items});
-		return;
-	};
-	_ = result;
-
+	_ = args;
+	_ = source;
 	
+	main.server.restart.store(true, .release);
+	main.server.running.store(false, .release);	
 }
